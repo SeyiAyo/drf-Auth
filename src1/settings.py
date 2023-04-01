@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     #Project APPS
     'login',
     'signup',
+    'api',
     'rest_framework',
     ]
 
