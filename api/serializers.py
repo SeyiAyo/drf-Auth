@@ -5,11 +5,29 @@ from rest_framework import status
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 
+
+#Define Gender Choices
+GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other')
+    ]
+
+#Middleware class to avoid CORS error
+class CorsMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        response["Access-Control-Allow-Origin"] = "*"
+        return response
+      
 #Serializer to Get User Details using Django Token Authentication
 class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = User
-    fields = ["id", "first_name", "last_name", "username"]
+    fields = ["id", "first_name", "last_name", "username", 'gender']
     
 #Serializer to Register User
 class RegisterSerializer(serializers.ModelSerializer):
@@ -17,13 +35,16 @@ class RegisterSerializer(serializers.ModelSerializer):
     required=True,
     validators=[UniqueValidator(queryset=User.objects.all())]
   )
+
+  gender = serializers.ChoiceField(choices=GENDER_CHOICES)
+
   password = serializers.CharField(
     write_only=True, required=True, validators=[validate_password])
   password2 = serializers.CharField(write_only=True, required=True)
   class Meta:
     model = User
     fields = ('username', 'password', 'password2',
-         'email', 'first_name', 'last_name')
+         'email', 'first_name', 'last_name', 'gender')
     extra_kwargs = {
       'first_name': {'required': True},
       'last_name': {'required': True}
